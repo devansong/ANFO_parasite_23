@@ -24,6 +24,7 @@ source("~MRFcov_ID.R") #This R document is uploaded to Github
 source("~cv_MRF_diag_rep_ID.R") #This R document is uploaded to Github
 source("~bootstrap_MRF_ID.R") #This R document is uploaded to Github
 
+
 df <- read.csv("For_CRF_Binomial.csv")
 df <- df[, -6]
 
@@ -31,7 +32,10 @@ for(i in c(6:ncol(df))){
   df[,i] <- scale(as.numeric(df [,i]))
 }
 
-#analysis.data <- df[, 2:(ncol(df))]
+str(df)
+#Make sure all parasites are binary (0 and 1)
+#Correct it if it is not. Node data should be binary 
+
 analysis.data <- df[, -1]
 
 ###################################################################################################
@@ -63,18 +67,19 @@ quantile(evaluate_nocov$mean_tot_pred[evaluate_nocov$model == 'Spatial MRF'], pr
 mean(evaluate_nocov$mean_tot_pred[evaluate_nocov$model == 'Spatial MRF']) 
 #####
 booted_CRF_all <- bootstrap_MRF_ID(data = analysis.data, n_bootstraps = 100,
-                                   n_nodes = 5, n_cores = 1, family = 'binomial',
+                                   n_nodes = 4, n_cores = 1, family = 'binomial',
                                    id_data = df, sample_seed = 122696)
+
+#Experiment with changing number of cores if this takes too long 
+#Parameters that should not be changed for this line are n_nodes 
 
 #######
 str <- as.data.frame(booted_CRF_all$mean_key_coefs$Strongyle_egg)
 str$parasite <- "Strongyle"
-mit <- as.data.frame(booted_CRF_all$mean_key_coefs$Mite_egg)
-mit$parasite <- "Mite"
 coc <- as.data.frame(booted_CRF_all$mean_key_coefs$Coccidia_egg)
 coc$parasite <- "Coccidia"
 tap <- as.data.frame(booted_CRF_all$mean_key_coefs$Tapeworm_egg)
 tap$parasite <- "Tapeworm"
 asc <- as.data.frame(booted_CRF_all$mean_key_coefs$Ascarid_egg)
 asc$parasite <- "Ascarid"
-summarydf <- rbind(str, mit, coc, tap, asc)
+summarydf <- rbind(str, coc, tap, asc)
