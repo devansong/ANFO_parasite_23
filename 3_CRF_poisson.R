@@ -38,7 +38,7 @@ analysis.data <- df[, c("Strongyle.EPG",
                         "Site_Zoo",        
                         "Sex_F",           
                         "Sex_M", 
-                        "Mite.PA")]
+                        "Mite_PA")]
 
 for(i in c(5:ncol(analysis.data))){
   analysis.data[,i] <- scale(as.numeric(analysis.data[,i]))
