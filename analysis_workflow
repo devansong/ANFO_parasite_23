@@ -1,4 +1,4 @@
 1_Prep_Raw_Data.R takes file data_MERGED.csv and creates For_CRF_Binomial.csv and For_CRF_Poisson.csv;
-2_CRF_binomial.R uses For_CRF_Binomial.csv to run presence/absence analysis;
+2_CRF_binomial.R uses For_CRF_Binomial.csv to run parasite presence/absence analysis;
 3_CRF_poisson uses For_CRF_Poisson.csv to run parasite load analysis;
 4_Plotting_Results.R uses data_MERGED.csv to plot figures 
