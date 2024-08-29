@@ -4,7 +4,7 @@ bootstrap_MRF_ID <- function(data, n_bootstraps, sample_seed, symmetrise,
                           spatial = TRUE,
                           id_data){
   
-  #### Specify default parameter values and initiate warnings ####
+  #### Specify default parameter values and initiate warnings #####
   if(!(family %in% c('gaussian', 'poisson', 'binomial')))
     stop('Please select one of the three family options:
          "gaussian", "poisson", "binomial"')

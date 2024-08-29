@@ -184,7 +184,7 @@ cv_MRF_diag_rep_ID = function(data, symmetrise, n_nodes, n_cores, id_data,
   
   plot_dat <- do.call(rbind, repped_cvs)
   
-  #### Return either a plot or a dataframe of predictive metrics ####
+  #### Return either a plot or a dataframe of predictive metrics #####
   if(plot){
     if(family == 'gaussian'){
       plot_gauss_cv_diag_optim(plot_dat, compare_null = compare_null)

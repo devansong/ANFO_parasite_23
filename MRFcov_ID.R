@@ -2,7 +2,7 @@ MRFcov_ID <- function(data, symmetrise, prep_covariates,
                            n_nodes, n_cores, n_covariates,
                            family, id_data, bootstrap = FALSE) {
   
-  #### Specify default parameter values and initiate warnings ####
+  #### Specify default parameter values and initiate warnings #####
   if(!(family %in% c('gaussian', 'poisson', 'binomial')))
     stop('Please select one of the three family options:
          "gaussian", "poisson", "binomial"')
