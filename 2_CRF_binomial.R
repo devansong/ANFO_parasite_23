@@ -1,0 +1,80 @@
+##################################################################
+##################################################################
+######ANFO parasite data analysis for Memphis Zoo ################
+####Code by Anne Devan-Song. Bend, OR. 2023#######################
+##################################################################
+##################################################################
+
+
+rm(list=ls())
+graphics.off()
+
+library(dplyr)
+library(tidyverse)
+library(MRFcov)
+library(parallel)
+library(igraph)
+library(PerformanceAnalytics)
+library(fastDummies)
+library(ggpubr)
+library(gridExtra)
+library(cowplot)
+
+source("~MRFcov_ID.R") #This R document is uploaded to Github
+source("~cv_MRF_diag_rep_ID.R") #This R document is uploaded to Github
+source("~bootstrap_MRF_ID.R") #This R document is uploaded to Github
+
+df <- read.csv("For_CRF_Binomial.csv")
+df <- df[, -6]
+
+for(i in c(6:ncol(df))){
+  df[,i] <- scale(as.numeric(df [,i]))
+}
+
+#analysis.data <- df[, 2:(ncol(df))]
+analysis.data <- df[, -1]
+
+###################################################################################################
+MRF_fit <- MRFcov_ID(data = analysis.data, n_nodes = 4, n_cores = 4,
+                     family = 'binomial', id_data = df, bootstrap = FALSE)
+
+plotMRF_hm(MRF_mod = MRF_fit, main = 'MRF (no covariates)_POISSON', 
+           node_names = c("Strongyle","Coccidia","Tapeworm","Ascarid"))
+
+MRF_fit$key_coefs
+
+evaluate <- cv_MRF_diag_rep_ID(data = analysis.data, n_nodes = 4,
+                               n_cores = 4, family = 'binomial',id_data = df, plot = F, compare_null = T)
+evaluate_nocov <- cv_MRF_diag_rep_ID(data = analysis.data[1:4], n_nodes = 4,
+                                     n_cores = 4, family = 'binomial',id_data = df, plot = F, compare_null = T)
+#####
+quantile(evaluate$mean_sensitivity[evaluate$model == 'Spatial MRF'], probs = c(0.05, 0.95)) 
+mean(evaluate$mean_sensitivity[evaluate$model == 'Spatial MRF']) 
+quantile(evaluate$mean_specificity[evaluate$model == 'Spatial MRF'], probs = c(0.05, 0.95)) 
+mean(evaluate$mean_specificity[evaluate$model == 'Spatial MRF']) 
+quantile(evaluate$mean_tot_pred[evaluate$model == 'Spatial MRF'], probs = c(0.05, 0.95)) 
+mean(evaluate$mean_tot_pred[evaluate$model == 'Spatial MRF']) 
+######
+quantile(evaluate_nocov$mean_sensitivity[evaluate_nocov$model == 'Spatial MRF'], probs = c(0.05, 0.95))  
+mean(evaluate_nocov$mean_sensitivity[evaluate_nocov$model == 'Spatial MRF']) 
+quantile(evaluate_nocov$mean_specificity[evaluate_nocov$model == 'Spatial MRF'], probs = c(0.05, 0.95))
+mean(evaluate_nocov$mean_specificity[evaluate_nocov$model == 'Spatial MRF']) 
+quantile(evaluate_nocov$mean_tot_pred[evaluate_nocov$model == 'Spatial MRF'], probs = c(0.05, 0.95)) 
+mean(evaluate_nocov$mean_tot_pred[evaluate_nocov$model == 'Spatial MRF']) 
+#####
+booted_CRF_all <- bootstrap_MRF_ID(data = analysis.data, n_bootstraps = 100,
+                                   n_nodes = 5, n_cores = 1, family = 'binomial',
+                                   id_data = df, sample_seed = 122696)
+
+#######
+str <- as.data.frame(booted_CRF_all$mean_key_coefs$Strongyle_egg)
+str$parasite <- "Strongyle"
+mit <- as.data.frame(booted_CRF_all$mean_key_coefs$Mite_egg)
+mit$parasite <- "Mite"
+coc <- as.data.frame(booted_CRF_all$mean_key_coefs$Coccidia_egg)
+coc$parasite <- "Coccidia"
+tap <- as.data.frame(booted_CRF_all$mean_key_coefs$Tapeworm_egg)
+tap$parasite <- "Tapeworm"
+asc <- as.data.frame(booted_CRF_all$mean_key_coefs$Ascarid_egg)
+asc$parasite <- "Ascarid"
+summarydf <- rbind(str, mit, coc, tap, asc)
