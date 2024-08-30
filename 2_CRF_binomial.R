@@ -74,12 +74,6 @@ booted_CRF_all <- bootstrap_MRF_ID(data = analysis.data, n_bootstraps = 100,
 #Parameters that should not be changed for this line are n_nodes 
 
 #######
-str <- as.data.frame(booted_CRF_all$mean_key_coefs$Strongyle_egg)
-str$parasite <- "Strongyle"
-coc <- as.data.frame(booted_CRF_all$mean_key_coefs$Coccidia_egg)
-coc$parasite <- "Coccidia"
-tap <- as.data.frame(booted_CRF_all$mean_key_coefs$Tapeworm_egg)
-tap$parasite <- "Tapeworm"
-asc <- as.data.frame(booted_CRF_all$mean_key_coefs$Ascarid_egg)
-asc$parasite <- "Ascarid"
-summarydf <- rbind(str, coc, tap, asc)
+booted_CRF_all$mean_key_coefs #This should closely if not completely match table 1 in manuscript. 
+newdf <- as.data.frame(booted_CRF_all$mean_key_coefs) 
+

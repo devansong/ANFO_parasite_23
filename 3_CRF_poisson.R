@@ -1,6 +1,6 @@
 ##################################################################
 ##################################################################
-######ANFO parasite data analysis for Memphis Zoo project#########
+######ANFO parasite data analysis for Memphis Zoo ################
 ####Code by Anne Devan-Song. Bend, OR. 2023#######################
 ##################################################################
 ##################################################################
@@ -25,20 +25,29 @@ source("~MRFcov_ID.R")
 source("~cv_MRF_diag_rep_ID.R")
 source("~bootstrap_MRF_ID.R")
 
+source("/Users/annedevan-song_1/Dropbox/Publications_Work/ANFO_Parasites/Code/MRFcov_ID.R")
+source("/Users/annedevan-song_1/Dropbox/Publications_Work/ANFO_Parasites/Code/bootstrap_MRF_ID.R")
+source("/Users/annedevan-song_1/Dropbox/Publications_Work/ANFO_Parasites/Code/cv_MRF_diag_rep_ID.R")
+
+setwd("~/Dropbox/Publications_Work/ANFO_Parasites/Data") 
+
+
+
 df <- read.csv("For_CRF_Poisson.csv")
-analysis.data <- df[, c("Strongyle.EPG",
-                        "Coccidia.EPG",
-                        "Cestode.EPG", 
-                        "Ascarid.EPG", 
-                        "Fecal.Mass.g.",  
-                        "SVL",             
-                        "BCI",            
-                        "Site_Park",   
-                        "Site_Forest", 
-                        "Site_Zoo",        
-                        "Sex_F",           
-                        "Sex_M", 
-                        "Mite_PA")]
+df <- subset(df, Animal.ID != "ANFO_193" &
+               Animal.ID!= "ANFO_29")
+df <- df[, -6]
+
+for(i in c(6:ncol(df))){
+  df[,i] <- scale(as.numeric(df [,i]))
+}
+
+str(df)
+#Make sure all parasites are integers 
+#Correct it if it is not.
+
+analysis.data <- df[, -1]
+
 
 for(i in c(5:ncol(analysis.data))){
   analysis.data[,i] <- scale(as.numeric(analysis.data[,i]))
@@ -51,15 +60,12 @@ str(df)
 MRF_fit <- MRFcov_ID(data = analysis.data, n_nodes = 4, n_cores = 4,
                      family = 'poisson', id_data = df, bootstrap = FALSE)
 MRF_fit$key_coefs
-MRF_fit$key_coefs$Strongyle
-MRF_fit$key_coefs$Coccidia
-MRF_fit$key_coefs$Tapeworm
-MRF_fit$key_coefs$Ascarid
 
 evaluate <- cv_MRF_diag_rep_ID(data = analysis.data, n_nodes = 4,
                                n_cores = 4, family = 'poisson',id_data = df, plot = F, compare_null = T)
-evaluate_nocov <- cv_MRF_diag_rep_ID(data = analysis.data[1:5], n_nodes = 4,
-                                     n_cores = 4, family = 'binomial',id_data = df, plot = F, compare_null = T)
+evaluate_nocov <- cv_MRF_diag_rep_ID(data = analysis.data[1:4], n_nodes = 4,
+                                     n_cores = 4, family = 'poisson',id_data = df, plot = F, compare_null = T)
+
 quantile(evaluate$mean_sensitivity[evaluate$model == 'Spatial MRF'], probs = c(0.05, 0.95)) 
 mean(evaluate$mean_sensitivity[evaluate$model == 'Spatial MRF']) 
 quantile(evaluate$mean_specificity[evaluate$model == 'Spatial MRF'], probs = c(0.05, 0.95))
@@ -80,17 +86,13 @@ booted_CRF_all <- bootstrap_MRF_ID(data = analysis.data, n_bootstraps = 100,
                                    n_nodes = 4, n_cores = 1, family = 'poisson',
                                    id_data = df, sample_seed = 122696)
 
-
-#Experiment with changing number of cores if this takes too long 
 #Parameters that should not be changed for this line are n_nodes 
 #####
+booted_CRF_all$mean_key_coefs #This should closely if not completely match table 2 in manuscript. 
+newdf <- as.data.frame(booted_CRF_all$mean_key_coefs) 
 
-str <- as.data.frame(booted_CRF_all$mean_key_coefs$Strongyle_egg)
-str$parasite <- "Strongyle"
-coc <- as.data.frame(booted_CRF_all$mean_key_coefs$Coccidia_egg)
-coc$parasite <- "Coccidia"
-tap <- as.data.frame(booted_CRF_all$mean_key_coefs$Tapeworm_egg)
-tap$parasite <- "Tapeworm"
-asc <- as.data.frame(booted_CRF_all$mean_key_coefs$Ascarid_egg)
-asc$parasite <- "Ascarid"
-summarydf <- rbind(str,coc, tap, asc)
+
+
+
+
+
