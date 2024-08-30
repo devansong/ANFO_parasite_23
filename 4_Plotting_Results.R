@@ -1,6 +1,6 @@
 ##################################################################
 ##################################################################
-######ANFO parasite data analysis for Memphis Zoo ################
+######ANFO parasite data analysis for Memphis Zoo#################
 ####Code by Anne Devan-Song. Bend, OR. 2023#######################
 ##################################################################
 ##################################################################
@@ -129,13 +129,10 @@ heatmap <- ggplot(dat, aes(Site, Parasite)) +
   geom_tile(aes(fill = Prevalence), colour = "white") + 
   theme_classic()+
   scale_fill_viridis("Prevalence")+
-  #scale_x_continuous(breaks = c(1:7))+
   ylab("")+
   xlab("")+
   theme(axis.line = element_line(colour = "white", 
                                  size = 0, linetype = "solid")
-        #, 
-        #axis.text.x = element_text(angle = 45, hjust=1)
         )
 
 heatmap
