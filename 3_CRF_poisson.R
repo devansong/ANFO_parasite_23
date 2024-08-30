@@ -34,8 +34,7 @@ setwd("~/Dropbox/Publications_Work/ANFO_Parasites/Data")
 
 
 df <- read.csv("For_CRF_Poisson.csv")
-df <- subset(df, Animal.ID != "ANFO_193" &
-               Animal.ID!= "ANFO_29")
+##This is  to remove outliers for a 2nd round  df <- subset(df, Animal.ID != "ANFO_193" & Animal.ID!= "ANFO_29")
 df <- df[, -6]
 
 for(i in c(6:ncol(df))){
