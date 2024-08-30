@@ -25,16 +25,10 @@ source("~MRFcov_ID.R")
 source("~cv_MRF_diag_rep_ID.R")
 source("~bootstrap_MRF_ID.R")
 
-source("/Users/annedevan-song_1/Dropbox/Publications_Work/ANFO_Parasites/Code/MRFcov_ID.R")
-source("/Users/annedevan-song_1/Dropbox/Publications_Work/ANFO_Parasites/Code/bootstrap_MRF_ID.R")
-source("/Users/annedevan-song_1/Dropbox/Publications_Work/ANFO_Parasites/Code/cv_MRF_diag_rep_ID.R")
-
 setwd("~/Dropbox/Publications_Work/ANFO_Parasites/Data") 
 
-
-
 df <- read.csv("For_CRF_Poisson.csv")
-##This is  to remove outliers for a 2nd round  df <- subset(df, Animal.ID != "ANFO_193" & Animal.ID!= "ANFO_29")
+#Rerun to remove outliers and compare######### df <- subset(df, Animal.ID != "ANFO_193" & Animal.ID!= "ANFO_29")
 df <- df[, -6]
 
 for(i in c(6:ncol(df))){
@@ -52,18 +46,15 @@ for(i in c(5:ncol(analysis.data))){
   analysis.data[,i] <- scale(as.numeric(analysis.data[,i]))
 }
 
-str(df)
-#Make sure all parasites columns are sstructured as integer 
-#Correct it if it is not 
 
 MRF_fit <- MRFcov_ID(data = analysis.data, n_nodes = 4, n_cores = 4,
                      family = 'poisson', id_data = df, bootstrap = FALSE)
 MRF_fit$key_coefs
 
 evaluate <- cv_MRF_diag_rep_ID(data = analysis.data, n_nodes = 4,
-                               n_cores = 4, family = 'poisson',id_data = df, plot = F, compare_null = T)
+                               n_cores = 1, family = 'poisson',id_data = df, plot = F, compare_null = F)
 evaluate_nocov <- cv_MRF_diag_rep_ID(data = analysis.data[1:4], n_nodes = 4,
-                                     n_cores = 4, family = 'poisson',id_data = df, plot = F, compare_null = T)
+                                     n_cores = 1, family = 'poisson',id_data = df, plot = F, compare_null = T)
 
 quantile(evaluate$mean_sensitivity[evaluate$model == 'Spatial MRF'], probs = c(0.05, 0.95)) 
 mean(evaluate$mean_sensitivity[evaluate$model == 'Spatial MRF']) 
